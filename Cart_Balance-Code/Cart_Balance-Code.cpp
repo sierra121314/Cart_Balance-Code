@@ -93,12 +93,13 @@ int main()
 	for (int i = 0; i < 2000; i++) { // for i number of iterations 
 		//calculate xy
 		//use theta
-
+		pendulum.Px = pendulum.L*cos(pendulum.theta);
+		pendulum.Py = pendulum.L*sin(pendulum.theta);
 		//output xy
 		fout << pendulum.Px << "," << pendulum.Py << endl;
 		//update theta and theta_dd
 		pendulum.theta = asin((pendulum.theta_dd*pendulum.L) / g); // check if this works for defining theta
-		pendulum.theta_dd = // define theta_dd with t variable
+		pendulum.theta_dd = g*pendulum.theta / (pendulum.L); // define theta_dd with t variable
 	}
 
 	//close file
