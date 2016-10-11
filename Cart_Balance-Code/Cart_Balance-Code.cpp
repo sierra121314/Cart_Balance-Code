@@ -2,6 +2,7 @@
 // Min-Max Evolutionary Controllers Physics Portion
 
 #include "stdafx.h"
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
 #include <fstream>
@@ -15,7 +16,7 @@ using namespace std;
 const int g = 9.81; // m/s^2
 
 			  // Not sure where to put this
-theta_dd = -Ry*cos(theta*PI / 180) + Rx*sin(theta*PI / 180);
+//theta_dd = -Ry*cos(theta*PI / 180) + Rx*sin(theta*PI / 180);
 
 ////Struct has function 
 //Class has public, private, function and inheritance
@@ -31,17 +32,15 @@ theta_dd = -Ry*cos(theta*PI / 180) + Rx*sin(theta*PI / 180);
 class Cart {
 public:
 			
-	int Mc; // Mass of the Cart
-	int y; // Y position of Cart - Irrelevant due to gravity
-	int y_dot; // Velocity of y component of Cart - Irrelevant due to gravity
-	int y_dd; // Y double dot - Y component of acceleration of Cart
+	const int Mc=200; // Mass of the Cart
+	const int y; // Y position of Cart - Irrelevant due to gravity
+	const int y_dot; // Velocity of y component of Cart - Irrelevant due to gravity
+	const int y_dd; // Y double dot - Y component of acceleration of Cart
 
 			// Changing Variables
-	int x; // X Position of Cart
-	int x_dot; // Velocity of x component of Cart
-	int x_dd; // Acceleration of x component of Cart
-
-
+	double x; // X Position of Cart
+	double x_dot; // Velocity of x component of Cart
+	double x_dd; // Acceleration of x component of Cart
 
 };
 
@@ -57,10 +56,10 @@ public:
 class Pendulum {
 public:
 
-	int m; // Mass of Pendulum
-	int L; // Length of the Pendulum
-	int Px; // x coordinate of Pendulum;
-	int Py; // y coordinate of Pendulum;
+	const int m=50; // Mass of Pendulum
+	const int L=10; // Length of the Pendulum
+	double Px; // x coordinate of Pendulum;
+	double Py; // y coordinate of Pendulum;
 
 			// Changing variables
 	double theta; // ever changing theta - main objective to keep theta around 90*
@@ -75,15 +74,17 @@ public:
 
 int main()
 {
+	// initialize cart weight
+	//Cart cart; // Object call cart of type cart
+	
 
 	// initialize theta_dot=0 and theta= little less that 90 degrees
 
 	Pendulum pendulum;  // I have an object called pendulum of type pendulum
-	pendulum.theta = 89.9;  //degrees //theta of this specific pendulum
+	pendulum.theta = 89.9*M_PI/180;  //degrees //theta of this specific pendulum
+	pendulum.theta_dot = 0; // rad/s // theta dot of this specific pendulum
 	pendulum.theta_dd = 0; //rad/s^2 // theta double dot of this specific pendulum
-	pendulum.m = 100; //kg  //mass of this specific pendulum
-	pendulum.L = 10; //m
-
+	
 //loop in order to display the xy data
 //processing loop
 
@@ -97,9 +98,12 @@ int main()
 		pendulum.Py = pendulum.L*sin(pendulum.theta);
 		//output xy
 		fout << pendulum.Px << "," << pendulum.Py << endl;
-		//update theta and theta_dd
-		pendulum.theta = asin((pendulum.theta_dd*pendulum.L) / g); // check if this works for defining theta
-		pendulum.theta_dd = g*pendulum.theta / (pendulum.L); // define theta_dd with t variable
+		//update theta_dd
+		
+		pendulum.theta_dd = -g*pendulum.L / (sin(pendulum.theta)); // define theta_dd with t variable //THE STARTING POINT MAKES SENSE!!
+		//pendulum.theta_dot =
+		pendulum.theta = pendulum.theta - (-g*pendulum.L/pendulum.theta_dd)  ; // check if this works for defining theta //take this out
+
 	}
 
 	//close file
