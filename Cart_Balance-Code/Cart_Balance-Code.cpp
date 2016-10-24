@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <fstream>
+#include "vector"
 
 using namespace std;
 // Establish boundaries
@@ -71,15 +72,44 @@ public:
 // Within a loop - Balance the Pendulum on the cart in equilibrium
 // Within another loop - The ball starts at the top but falls under the cart, finally falling into equilibrium
 
+vector <double> get_state() { //gives the state of the pendulum at the given timestep
+	
+	Pendulum pendulum;
+
+	pendulum.Py = pendulum.L*sin(pendulum.theta); 
+	pendulum.Px = pendulum.L*cos(pendulum.theta);
+
+	vector <double> Pstate;
+
+	Pstate.push_back(pendulum.Px); //push_back pushes it to the back of the array
+	Pstate.push_back(pendulum.Py);
+
+	return Pstate;
+}
+
+void set_action(vector<double>) { //receives "action vection", which in the first case will just consist of the torque at the joint
+
+
+
+}
+
+void cycle() { // does all necessary calculations, given an action (already set from set_action), to arrive at the next state at the next timestep.
+
+
+
+}
+
+
+
+
 
 int main()
 {
 	// initialize cart weight
 	//Cart cart; // Object call cart of type cart
-	
+	//cart.x = 0;
 
 	// initialize theta_dot=0 and theta= little less that 90 degrees
-
 	Pendulum pendulum;  // I have an object called pendulum of type pendulum
 	pendulum.theta = 89.9*M_PI/180;  //degrees //theta of this specific pendulum
 	pendulum.theta_dot = 0; // rad/s // theta dot of this specific pendulum
@@ -94,16 +124,18 @@ int main()
 	for (int i = 0; i < 2000; i++) { // for i number of iterations 
 		//calculate xy
 		//use theta
-		pendulum.Px = pendulum.L*cos(pendulum.theta);
-		pendulum.Py = pendulum.L*sin(pendulum.theta);
+		//pendulum.Px = cart.x+pendulum.L*cos(pendulum.theta);
+		pendulum.Py = pendulum.L*sin(pendulum.theta); //THE STARTING POINT MAKES SENSE!!
+		pendulum.Px = pendulum.L*cos(pendulum.theta); 
 		//output xy
-		fout << pendulum.Px << "," << pendulum.Py << endl;
+		fout << pendulum.Px << "," << pendulum.Py << "," << pendulum.theta << endl;
+
 		//update theta_dd
 		
-		pendulum.theta_dd = -g*pendulum.L / (sin(pendulum.theta)); // define theta_dd with t variable //THE STARTING POINT MAKES SENSE!!
-		//pendulum.theta_dot =
-		pendulum.theta = pendulum.theta - (-g*pendulum.L/pendulum.theta_dd)  ; // check if this works for defining theta //take this out
-
+		pendulum.theta_dd = -g*pendulum.L *cos(pendulum.theta)/(pendulum.m*(pendulum.L)^2) + tor; // define theta_dd with t variable 
+		pendulum.theta_dot = g/pendulum.L*cos(pendulum.theta);
+		pendulum.theta =  - g/pendulum.L * sin(pendulum.theta) ; // check if this works for defining theta //take this out
+		
 	}
 
 	//close file
@@ -112,4 +144,7 @@ int main()
 	return 0;
 }
 
-
+vector<double> get_state()
+{
+	return vector<double>();
+}
