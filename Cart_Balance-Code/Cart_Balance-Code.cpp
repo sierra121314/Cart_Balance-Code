@@ -5,6 +5,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <fstream>
 #include "vector"
 
@@ -15,9 +16,9 @@ using namespace std;
 
 // Initialize knowns
 const int g = 9.81; // m/s^2
+const int n = 1000 // iterations
 
-			  // Not sure where to put this
-//theta_dd = -Ry*cos(theta*PI / 180) + Rx*sin(theta*PI / 180);
+
 
 ////Struct has function 
 //Class has public, private, function and inheritance
@@ -54,97 +55,143 @@ public:
 // ball velocity - thetadot
 // forces on Pendulum
 // Massless Pendulum
-class Pendulum {
+class Pend_state {
 public:
 
-	const int m=50; // Mass of Pendulum
-	const int L=10; // Length of the Pendulum
+	int theta; // ever changing theta - main objective to keep theta around 90*
 	double Px; // x coordinate of Pendulum;
 	double Py; // y coordinate of Pendulum;
 
-			// Changing variables
-	double theta; // ever changing theta - main objective to keep theta around 90*
+};
+
+
+class Pendulum {
+public:
+
+	// static variables
+	const int m=50; // Mass of Pendulum
+	const int L=10; // Length of the Pendulum
+	
+	// collection of states
+	vector <Pend_state> pend;
+
+	// Changing variables
 	double theta_dot; // ever changing velocity of theta.
 	double theta_dd; // acceleration of theta.
+	double torq;
+	double I;
+
+	// public functions
+	void initialize();
+	Pend_state get_state(const int);
+	void set_action();
+	Pend_state cycle();
+	double f(double theta, double omega, double time);
+
+private:
 
 };
+
+void Pendulum::initialize()
+{
+	Pend_state initial;
+	initial.theta = 180* M_PI / 180;
+	initial.Px = -10;
+	initial.Py = 0;
+	
+	for (int i = 0; i < n; ++i) {
+		pend.push_back(initial); //push_back pushes it to the back of the vector
+	}
+
+}
+
+double Pendulum::f(double theta, double omega, double time) {
+	return -theta
+}
+
 
 // Within a loop - Balance the Pendulum on the cart in equilibrium
 // Within another loop - The ball starts at the top but falls under the cart, finally falling into equilibrium
 
-vector <double> get_state() { //gives the state of the pendulum at the given timestep
+Pend_state Pendulum::cycle() { 
 	
-	Pendulum pendulum;
+	// variables
+	Pend_state nextState;
+	double dt = 0.1; //time step
 
-	pendulum.Py = pendulum.L*sin(pendulum.theta); 
-	pendulum.Px = pendulum.L*cos(pendulum.theta);
+	// use previous state + new conditions to "load" nextState (do all of the calculations)
+		//nextState.Px = L*cos(theta);
+		//nextState.Py = L*sin(theta);
+	
+	// does all necessary calculations, given an action (already set from set_action), to arrive at the next state at the next timestep.
+	//torque to theta dd
+	theta_dd = -g*L *cos(theta) / m*pow(L, 2) + torq; //rad/s^2   // define theta_dd with t variable 
+		//thetat_dd to theta_dot
+		//theta_dot to theta
+		//theta to xy
 
+	// initialize theta_dot=0 and theta= little less that 90 degrees
+	theta_dot = 0; // rad/s // theta dot of this specific pendulum
+	theta_dd = 0;
+
+	// overwrite vector with nextState
+		//pend[++i]=nextState; // loop this for all of your steps
+
+	/*
 	vector <double> Pstate;
 
-	Pstate.push_back(pendulum.Px); //push_back pushes it to the back of the array
-	Pstate.push_back(pendulum.Py);
 
-	return Pstate;
+	Return Pstate;*/
+
+	return (*this);
 }
 
-void set_action(vector<double>) { //receives "action vection", which in the first case will just consist of the torque at the joint
+void Pendulum::set_action() { //receives "action vection", which in the first case will just consist of the torque at the joint
 
-
-
-}
-
-void cycle() { // does all necessary calculations, given an action (already set from set_action), to arrive at the next state at the next timestep.
-
+	//name vector
+	// torq=t@0
+	torq = 0
 
 
 }
 
-
-
+Pend_state Pendulum:get_state(const int i) { 
+	//gives the state of the pendulum at the given timestep
+	return pend[i];
+}
 
 
 int main()
 {
+	// variables
+	Pendulum pend;
+
+	// initialize pendulum
+	pend.initialize();
+
+	// calculate all of the states of the pendulum along the curve
+	pend.cycle();
+	
 	// initialize cart weight
 	//Cart cart; // Object call cart of type cart
 	//cart.x = 0;
-
-	// initialize theta_dot=0 and theta= little less that 90 degrees
-	Pendulum pendulum;  // I have an object called pendulum of type pendulum
-	pendulum.theta = 89.9*M_PI/180;  //degrees //theta of this specific pendulum
-	pendulum.theta_dot = 0; // rad/s // theta dot of this specific pendulum
-	pendulum.theta_dd = 0; //rad/s^2 // theta double dot of this specific pendulum
 	
 //loop in order to display the xy data
 //processing loop
 
 //open file
 	ofstream fout;
+	fout.clear();
 	fout.open("filename.txt");
-	for (int i = 0; i < 2000; i++) { // for i number of iterations 
+	for (int i = 0; i < n; i++) { // for i number of iterations 
 		//calculate xy
 		//use theta
-		//pendulum.Px = cart.x+pendulum.L*cos(pendulum.theta);
-		pendulum.Py = pendulum.L*sin(pendulum.theta); //THE STARTING POINT MAKES SENSE!!
-		pendulum.Px = pendulum.L*cos(pendulum.theta); 
 		//output xy
-		fout << pendulum.Px << "," << pendulum.Py << "," << pendulum.theta << endl;
-
-		//update theta_dd
-		
-		pendulum.theta_dd = -g*pendulum.L *cos(pendulum.theta)/(pendulum.m*(pendulum.L)^2) + tor; // define theta_dd with t variable 
-		pendulum.theta_dot = g/pendulum.L*cos(pendulum.theta);
-		pendulum.theta =  - g/pendulum.L * sin(pendulum.theta) ; // check if this works for defining theta //take this out
-		
+		fout << pend[i].Px << "," << pend[i].Py << "," << pend[i].theta << endl;	
 	}
 
 	//close file
 	fout.close();
 
 	return 0;
-}
-
-vector<double> get_state()
-{
-	return vector<double>();
 }
