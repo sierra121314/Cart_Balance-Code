@@ -18,6 +18,7 @@ using namespace std;
 // Initialize knowns
 const float g = 9.81f; // m/s^2
 const int n = 1000; // iterations
+static const double dt = 0.1; //time step
 
 
 
@@ -116,8 +117,7 @@ void Pendulum::cycle() {
 	
 	// variables
 	Pend_state nextState;
-	static const double dt = 0.1; //time step
-
+	
 	// use previous state + new conditions to "load" nextState (do all of the calculations)
 		//nextState.Px = L*cos(theta);
 		//nextState.Py = L*sin(theta);
@@ -187,12 +187,12 @@ int main()
 //open file
 	ofstream fout;
 	fout.clear();
-	fout.open("positiondata.csv");
+	fout.open("positiondata2.csv");
 	for (int i = 0; i < n; i++) { // for i number of iterations 
 		//calculate xy
 		//use theta
 		//output xy
-		fout << pend.get_state(i).Px << "," << pend.get_state(i).Py << "," << pend.get_state(i).theta << endl;
+		fout << pend.get_state(i).Px << "," << pend.get_state(i).Py << "," << dt*i << "," << pend.get_state(i).theta << endl;
 	}
 
 	//close file
