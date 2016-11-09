@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <fstream>
 #include "vector"
+#include <iostream>
 
 using namespace std;
 // Establish boundaries
@@ -15,8 +16,8 @@ using namespace std;
 // gravity = 9.81; // m/s
 
 // Initialize knowns
-const int g = 9.81; // m/s^2
-const int n = 1000 // iterations
+const float g = 9.81f; // m/s^2
+const int n = 1000; // iterations
 
 
 
@@ -58,9 +59,10 @@ public:
 class Pend_state {
 public:
 
-	int theta; // ever changing theta - main objective to keep theta around 90*
+	double theta; // ever changing theta - main objective to keep theta around 90*
 	double Px; // x coordinate of Pendulum;
 	double Py; // y coordinate of Pendulum;
+
 
 };
 
@@ -69,8 +71,8 @@ class Pendulum {
 public:
 
 	// static variables
-	const int m=50; // Mass of Pendulum
-	const int L=10; // Length of the Pendulum
+	const double m=50; // Mass of Pendulum
+	const double L=10; // Length of the Pendulum
 	
 	// collection of states
 	vector <Pend_state> pend;
@@ -85,55 +87,59 @@ public:
 	void initialize();
 	Pend_state get_state(const int);
 	void set_action();
-	Pend_state cycle();
-	double f(double theta, double omega, double time);
+	void cycle();
 
-private:
 
 };
 
 void Pendulum::initialize()
 {
 	Pend_state initial;
-	initial.theta = 180* M_PI / 180;
-	initial.Px = -10;
-	initial.Py = 0;
-	
-	for (int i = 0; i < n; ++i) {
-		pend.push_back(initial); //push_back pushes it to the back of the vector
-	}
+	initial.theta = 45* M_PI / 180;
+	initial.Px = L*cos(initial.theta);
+	initial.Py = L*cos(initial.theta);
+	// initialize theta_dot=0 and theta double dot= little less that 90 degrees
+	theta_dot = 0; // rad/s // theta dot of this specific pendulum
+	theta_dd = 0;
+
+	pend.push_back(initial); //push_back pushes it to the back of the vector
 
 }
 
-double Pendulum::f(double theta, double omega, double time) {
-	return -theta
-}
+
 
 
 // Within a loop - Balance the Pendulum on the cart in equilibrium
 // Within another loop - The ball starts at the top but falls under the cart, finally falling into equilibrium
 
-Pend_state Pendulum::cycle() { 
+void Pendulum::cycle() { 
 	
 	// variables
 	Pend_state nextState;
-	double dt = 0.1; //time step
+	static const double dt = 0.1; //time step
 
 	// use previous state + new conditions to "load" nextState (do all of the calculations)
 		//nextState.Px = L*cos(theta);
 		//nextState.Py = L*sin(theta);
 	
-	// does all necessary calculations, given an action (already set from set_action), to arrive at the next state at the next timestep.
-	//torque to theta dd
-	theta_dd = -g*L *cos(theta) / m*pow(L, 2) + torq; //rad/s^2   // define theta_dd with t variable 
-		//thetat_dd to theta_dot
+	for (int i = 1; i < n; i++) {
+		// does all necessary calculations, given an action (already set from set_action), to arrive at the next state at the next timestep.
+		//torque to theta dd
+		theta_dd = -g*cos(pend[i - 1].theta) / (m*L) + torq; //rad/s^2   // define theta_dd with t variable 
+															 //thetat_dd to theta_dot
+		theta_dot = theta_dot + theta_dd*dt;
 		//theta_dot to theta
+		nextState.theta = pend[i - 1].theta + theta_dot*dt;
 		//theta to xy
+		nextState.Px = L*cos(nextState.theta);
+		nextState.Py = L*sin(nextState.theta);
 
-	// initialize theta_dot=0 and theta= little less that 90 degrees
-	theta_dot = 0; // rad/s // theta dot of this specific pendulum
-	theta_dd = 0;
+		cout << nextState.theta << "," << nextState.Px << "," << nextState.Py << endl;
+		
+		pend.push_back(nextState);
 
+	}
+	
 	// overwrite vector with nextState
 		//pend[++i]=nextState; // loop this for all of your steps
 
@@ -143,19 +149,18 @@ Pend_state Pendulum::cycle() {
 
 	Return Pstate;*/
 
-	return (*this);
 }
 
 void Pendulum::set_action() { //receives "action vection", which in the first case will just consist of the torque at the joint
 
 	//name vector
 	// torq=t@0
-	torq = 0
+	torq = 0;
 
 
 }
 
-Pend_state Pendulum:get_state(const int i) { 
+Pend_state Pendulum::get_state(const int i) { 
 	//gives the state of the pendulum at the given timestep
 	return pend[i];
 }
@@ -182,12 +187,12 @@ int main()
 //open file
 	ofstream fout;
 	fout.clear();
-	fout.open("filename.txt");
+	fout.open("positiondata.csv");
 	for (int i = 0; i < n; i++) { // for i number of iterations 
 		//calculate xy
 		//use theta
 		//output xy
-		fout << pend[i].Px << "," << pend[i].Py << "," << pend[i].theta << endl;	
+		fout << pend.get_state(i).Px << "," << pend.get_state(i).Py << "," << pend.get_state(i).theta << endl;
 	}
 
 	//close file
