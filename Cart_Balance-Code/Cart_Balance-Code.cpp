@@ -48,23 +48,16 @@ public:
 
 };
 
-
-// Establish Pendulum boundaries
-// weight of Pendulum
-// ball position
-// ball movements - rotational about pin
-// ball position - theta
-// ball velocity - thetadot
-// forces on Pendulum
-// Massless Pendulum
+///////////////////////////////////
+// Establish Pendulum boundaries //
+///////////////////////////////////
 class Pend_state {
 public:
-
+	// ball position - theta
 	double theta; // ever changing theta - main objective to keep theta around 90*
+	// ball position
 	double Px; // x coordinate of Pendulum;
 	double Py; // y coordinate of Pendulum;
-
-
 };
 
 
@@ -89,8 +82,6 @@ public:
 	Pend_state get_state(const int);
 	void set_action();
 	void cycle();
-
-
 };
 
 void Pendulum::initialize()
@@ -108,10 +99,6 @@ void Pendulum::initialize()
 }
 
 
-
-
-// Within a loop - Balance the Pendulum on the cart in equilibrium
-// Within another loop - The ball starts at the top but falls under the cart, finally falling into equilibrium
 
 void Pendulum::cycle() { 
 	
@@ -139,16 +126,6 @@ void Pendulum::cycle() {
 		pend.push_back(nextState);
 
 	}
-	
-	// overwrite vector with nextState
-		//pend[++i]=nextState; // loop this for all of your steps
-
-	/*
-	vector <double> Pstate;
-
-
-	Return Pstate;*/
-
 }
 
 void Pendulum::set_action() { //receives "action vection", which in the first case will just consist of the torque at the joint
@@ -156,8 +133,6 @@ void Pendulum::set_action() { //receives "action vection", which in the first ca
 	//name vector
 	// torq=t@0
 	torq = 0;
-
-
 }
 
 Pend_state Pendulum::get_state(const int i) { 
