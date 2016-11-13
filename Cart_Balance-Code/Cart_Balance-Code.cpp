@@ -58,6 +58,8 @@ public:
 	// ball position
 	double Px; // x coordinate of Pendulum;
 	double Py; // y coordinate of Pendulum;
+	double theta_dot; // ever changing velocity of theta.
+	double theta_dd; // acceleration of theta.
 };
 
 
@@ -72,15 +74,13 @@ public:
 	vector <Pend_state> pend;
 
 	// Changing variables
-	double theta_dot; // ever changing velocity of theta.
-	double theta_dd; // acceleration of theta.
 	double torq;
 	double I;
 
 	// public functions
 	void initialize();
-	Pend_state get_state(const int);
-	void set_action();
+	Pend_state give_state(const int);
+	void get_action();
 	void cycle();
 };
 
@@ -91,8 +91,8 @@ void Pendulum::initialize()
 	initial.Px = L*cos(initial.theta);
 	initial.Py = L*cos(initial.theta);
 	// initialize theta_dot=0 and theta double dot= little less that 90 degrees
-	theta_dot = 0; // rad/s // theta dot of this specific pendulum
-	theta_dd = 0;
+	initial.theta_dot = 0; // rad/s // theta dot of this specific pendulum
+	initial.theta_dd = 0;
 
 	pend.push_back(initial); //push_back pushes it to the back of the vector
 
@@ -105,37 +105,33 @@ void Pendulum::cycle() {
 	// variables
 	Pend_state nextState;
 	
-	// use previous state + new conditions to "load" nextState (do all of the calculations)
-		//nextState.Px = L*cos(theta);
-		//nextState.Py = L*sin(theta);
-	
 	for (int i = 1; i < n; i++) {
 		// does all necessary calculations, given an action (already set from set_action), to arrive at the next state at the next timestep.
 		//torque to theta dd
-		theta_dd = -g*cos(pend[i - 1].theta) / (m*L) + torq; //rad/s^2   // define theta_dd with t variable 
-															 //thetat_dd to theta_dot
-		theta_dot = theta_dot + theta_dd*dt;
+		nextState.theta_dd = -g*cos(pend[i - 1].theta) / (m*L) + torq; //rad/s^2   // define theta_dd with t variable 
+		//thetat_dd to theta_dot
+		nextState.theta_dot = pend[i - 1].theta_dot + pend[i - 1].theta_dd*dt;
 		//theta_dot to theta
-		nextState.theta = pend[i - 1].theta + theta_dot*dt;
+		nextState.theta = pend[i - 1].theta + pend[i].theta_dot*dt;
 		//theta to xy
 		nextState.Px = L*cos(nextState.theta);
 		nextState.Py = L*sin(nextState.theta);
 
-		cout << nextState.theta << "," << nextState.Px << "," << nextState.Py << endl;
+		cout << nextState.theta << "," << nextState.theta_dot << "," << nextState.theta_dd << "," << nextState.Px << "," << nextState.Py << endl;
 		
 		pend.push_back(nextState);
 
 	}
 }
 
-void Pendulum::set_action() { //receives "action vection", which in the first case will just consist of the torque at the joint
+void Pendulum::get_action() { //receives "action vection", which in the first case will just consist of the torque at the joint
 
 	//name vector
 	// torq=t@0
 	torq = 0;
 }
 
-Pend_state Pendulum::get_state(const int i) { 
+Pend_state Pendulum::give_state(const int i) { 
 	//gives the state of the pendulum at the given timestep
 	return pend[i];
 }
@@ -167,7 +163,7 @@ int main()
 		//calculate xy
 		//use theta
 		//output xy
-		fout << pend.get_state(i).Px << "," << pend.get_state(i).Py << "," << dt*i << "," << pend.get_state(i).theta << endl;
+		fout << pend.give_state(i).Px << "," << pend.give_state(i).Py << "," << dt*i << "," << pend.give_state(i).theta << "," << pend.give_state(i).theta_dot << "," << pend.give_state(i).theta_dd << endl;
 	}
 
 	//close file
