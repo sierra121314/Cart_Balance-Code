@@ -110,9 +110,9 @@ void Pendulum::cycle() {
 		//torque to theta dd
 		nextState.theta_dd = -g*cos(pend[i - 1].theta) / (m*L) + torq; //rad/s^2   // define theta_dd with t variable 
 		//thetat_dd to theta_dot
-		nextState.theta_dot = pend[i - 1].theta_dot + pend[i - 1].theta_dd*dt;
+		nextState.theta_dot = pend[i - 1].theta_dot + nextState.theta_dd*dt;
 		//theta_dot to theta
-		nextState.theta = pend[i - 1].theta + pend[i].theta_dot*dt;
+		nextState.theta = pend[i - 1].theta + nextState.theta_dot*dt;
 		//theta to xy
 		nextState.Px = L*cos(nextState.theta);
 		nextState.Py = L*sin(nextState.theta);
